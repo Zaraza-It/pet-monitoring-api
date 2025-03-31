@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Data
-@Table(name = "Camera")
-public class Camera {
+@Table(name = "PetGroups")
+public class PetGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -18,14 +19,13 @@ public class Camera {
     @ManyToOne(fetch = FetchType.EAGER)
     Shelter shelter;
 
-    @OneToMany(mappedBy = "camera")
-    List<Video> video;
+    @OneToMany(mappedBy = "group")
+    List<Video> videos;
 
-    String url;
+    @OneToMany(mappedBy = "group")
+    List<Pet> pets;
 
-    String model;
+    long groupNumber;
 
-    boolean is_active;
-
-    Date created_dt;
+    LocalDateTime createdDt;
 }

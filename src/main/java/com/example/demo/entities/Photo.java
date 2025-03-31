@@ -3,19 +3,22 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
-//
+import java.util.UUID;
+
 //@Entity
 //@Data
-//@Table(name = "Species")
-//public class Species {
+//@Table(name = "Photos")
+//public class Photo {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "id")
 //    long id;
 //
-//    @OneToMany(mappedBy = "species")
-//    List<Pet> pet;
+//    String photoUrl;
 //
-//    String species;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    Pet pet;
 //}
