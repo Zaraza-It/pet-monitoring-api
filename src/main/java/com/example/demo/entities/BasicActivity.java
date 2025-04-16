@@ -4,9 +4,6 @@ import com.example.demo.model.ActivityType;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
-
 @Entity
 @Data
 @Table(name = "BasicActivities")
