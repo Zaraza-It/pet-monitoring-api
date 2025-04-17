@@ -29,6 +29,10 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
+    volumes:
+      - ./data/images:/app/data/images
+      - ./data/temp_images:/app/data/temp_images
+      - ./data/videos:/app/data/videos
+      
 volumes:
   db_data:
