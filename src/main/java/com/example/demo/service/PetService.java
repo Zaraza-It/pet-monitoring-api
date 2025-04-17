@@ -19,6 +19,7 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -48,7 +50,7 @@ public class PetService {
 
     private final VideoRepository videoRepository;
 
-    private final   PetGroupRepository petGroupRepository;
+    private final PetGroupRepository petGroupRepository;
 
     private static final Map<ActivityType, String> ACTIVITY_NAMES = Map.ofEntries(
             Map.entry(ActivityType.KEEPING_STILL, "Не двигается"),
@@ -69,13 +71,13 @@ public class PetService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public Pet findPetById(Long petId) {
+    public Optional<Pet> findPetById(Long petId) {
         return petRepository.findPetById(petId);
     }
 
-    public void createPet(CreatePetDTO request, Long  shelterId) {
+    public void createPet(CreatePetDTO request, Long shelterId) {
         Shelter shelter = shelterRepository.findById(shelterId)
-                .orElseThrow(() -> new IllegalArgumentException("Приют не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Shelter not found"));
 
         PetGroup group = petGroupRepository.findByShelterIdAndGroupId(shelterId, request.getGroup())
                 .orElseGet(() -> {
@@ -120,13 +122,13 @@ public class PetService {
 
     public Resource getPetPhoto(Long petId) {
         try {
-            Pet pet = petRepository.findPetById(petId);
-            if (pet == null) {
+            Optional<Pet> pet = petRepository.findPetById(petId);
+            if (pet.isEmpty()) {
                 return null;
             }
-            String[] extensions = { "jpg", "jpeg", "png" };
+            String[] extensions = {"jpg", "jpeg", "png"};
             for (String ext : extensions) {
-                Path path = Paths.get(uploadDir, Long.toString(pet.getId()), "0." + ext);
+                Path path = Paths.get(uploadDir, Long.toString(pet.get().getId()), "0." + ext);
                 System.out.println("path to photo: " + path);
                 Resource resource = new UrlResource(path.toUri());
                 if (resource.exists() && resource.isReadable()) {
@@ -155,9 +157,9 @@ public class PetService {
 
         return activities.stream()
                 .collect(Collectors.groupingBy(
-                        BasicActivity::getActivityType,
-                        Collectors.summingLong(activity ->
-                                activity.getEndTimeInSeconds() - activity.getStartTimeInSeconds())
+                                BasicActivity::getActivityType,
+                                Collectors.summingLong(activity ->
+                                        activity.getEndTimeInSeconds() - activity.getStartTimeInSeconds())
                         )
                 )
                 .entrySet().stream()
@@ -224,9 +226,9 @@ public class PetService {
                 .orElseThrow(() -> new EntityNotFoundException("Видео не найдено"));
         Double fps = request.getVideoFps();
         if (fps == null || fps <= 0) {
-
             throw new IllegalArgumentException("Некорректная частота кадров");
         }
+
         int minFramesCount = (int) Math.ceil(fps / 16);
         int currentFramesCount = 0;
         ActivityType prevActivity = null;
@@ -259,15 +261,15 @@ public class PetService {
     }
 
     private void saveActivity(Pet pet, Video video, ActivityType activity, long framePredInd, long currentFramesCount, double fps, Long frameIndent) {
-        long frameInd = framePredInd - currentFramesCount;
-        long startTime = (long) Math.ceil((frameIndent + frameInd * 16) / fps);
-        long endTime = startTime + (long) Math.floor(currentFramesCount * 16 / fps);
-        BasicActivity basicActivity = new BasicActivity();
-        basicActivity.setActivityType(activity);
-        basicActivity.setPet(pet);
-        basicActivity.setVideo(video);
-        basicActivity.setStartTimeInSeconds(startTime);
-        basicActivity.setEndTimeInSeconds(endTime);
-        basicActivityRepository.save(basicActivity);
+        final long frameInd = framePredInd - currentFramesCount;
+        final long startTime = (long) Math.ceil((frameIndent + frameInd * 16) / fps);
+        final long endTime = startTime + (long) Math.floor(currentFramesCount * 16 / fps);
+        basicActivityRepository.save(BasicActivity.builder()
+                .activityType(activity)
+                .endTimeInSeconds(endTime)
+                .pet(pet)
+                .startTimeInSeconds(startTime)
+                .video(video)
+                .build());
     }
 }

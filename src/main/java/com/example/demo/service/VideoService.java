@@ -10,6 +10,7 @@ import com.example.demo.repository.VideoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoService {
     private final VideoRepository videoRepository;
     private final BasicActivityRepository basicActivityRepository;
@@ -80,6 +82,7 @@ public class VideoService {
     @Value("${file.video-dir}")
     private Path videoDir;
 
+
     public Resource getLatestVideo(Long petId) throws IOException {
         Video video = videoRepository.findLatestByPetId(petId, PageRequest.of(0, 1))
                 .stream()
@@ -87,14 +90,14 @@ public class VideoService {
                 .orElseThrow(() -> new EntityNotFoundException("Видео для питомца с ID " + petId + " не найдено"));
 
 
-        String relativePath = video.getFilePath();
+        final String relativePath = video.getFilePath();
         if (relativePath == null || relativePath.isBlank()) {
             throw new FileNotFoundException("Путь к видео не указан");
         }
 
         Path filePath = videoDir.resolve(relativePath).normalize();
-        System.out.println("videoDir: " + videoDir);
-        System.out.println("relative path: " + relativePath);
+        log.info("videoDir: {}", videoDir);
+        log.info("relative path: {}", relativePath);
         if (!Files.exists(filePath)) {
             throw new FileNotFoundException("Видеофайл не найден: " + filePath);
         }
@@ -143,11 +146,11 @@ public class VideoService {
        Video video = videoRepository.findFirstByIsProcessedFalse()
                .orElseThrow(() -> new EntityNotFoundException("Нет необработанных видео"));
         // Video video = null;
-        String relativePath = video.getFilePath();
+        final String relativePath = video.getFilePath();
         Path filePath = videoDir.resolve(relativePath).normalize();
-        System.out.println("Отпарвка видео AI сервису: " + relativePath);
+        log.info("Отпарвка видео AI сервису: {}", relativePath);
         if (!Files.exists(filePath)) {
-            System.out.println("Ошибка отправки AI сервису: " + relativePath);
+            log.info("Ошибка отправки AI сервису: {}", relativePath);
             throw new FileNotFoundException("Видеофайл не найден: " + filePath);
         }
 

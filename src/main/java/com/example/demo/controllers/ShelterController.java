@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 public class ShelterController {
     final ShelterService shelterService;
 
-    @GetMapping
+    @GetMapping("/")
     public List<ShelterDTO> getAllShelters() {
         return shelterService
                 .getAllShelters()
@@ -35,20 +36,20 @@ public class ShelterController {
     @GetMapping("/{id}")
     public ResponseEntity<ShelterDTO> getShelter
             (@PathVariable long id) {
-        Shelter shelter = shelterService.findShelter(id);
-        if (shelter == null) {
+       Optional<Shelter> shelter = shelterService.findShelter(id);
+        if (shelter.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new ShelterDTO(shelter));
+        return ResponseEntity.ok(new ShelterDTO(shelter.get()));
     }
 
     @GetMapping("/{id}/pets")
     public ResponseEntity<List<PetDTO>> getShelterPets(@PathVariable long id) {
-        Shelter shelter = shelterService.findShelter(id);
-        if (shelter == null) {
+       Optional<Shelter> shelter = shelterService.findShelter(id);
+        if (shelter.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        List<Pet> pets = shelter.getPets();
+        List<Pet> pets = shelter.get().getPets();
 
         List<PetDTO> petDTOs = pets.stream()
                 .map(PetDTO::new)

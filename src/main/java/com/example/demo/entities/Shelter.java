@@ -1,8 +1,17 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.sql.Date;
 import java.util.List;
 
@@ -10,6 +19,9 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "Shelters")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Shelter {
 
     @Id
@@ -17,32 +29,34 @@ public class Shelter {
     @Column(name = "id")
     long id;
 
-    @OneToMany(mappedBy = "shelter")
+    @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL)
     List<Pet> pets;
 
-    @OneToMany(mappedBy = "shelter")
+    @OneToMany(mappedBy = "shelter",fetch = FetchType.LAZY)
     List<PetGroup> groups;
 
+    @Min(4)
+    @Max(30)
+    @NotBlank
     String name;
 
+    @Min(4)
+    @Max(30)
+    @NotBlank
     String shelterLogin;
 
+    @NotBlank
+    @Min(5)
     String shelterPassword;
 
+    @Email
+    @Nullable
     String email;
 
+    @Min(10)
+    @Max(254)
+    @NotBlank
     String description;
 
     Date createDt;
-
-    public Shelter() {
-    }
-
-    public Shelter(String name, String shelterLogin, String shelterPassword, String email) {
-        this.name = name;
-        this.shelterLogin = shelterLogin;
-        this.shelterPassword = shelterPassword;
-        this.createDt = new Date(System.currentTimeMillis());
-        this.email = email;
-    }
 }

@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class ImageController {
 
     @DeleteMapping("/temp/{tempId}")
     @PreAuthorize("hasRole('SHELTER')")
-    public ResponseEntity<?> deleteTempImage(@PathVariable String tempId) {
+    public ResponseEntity<?> deleteTempImage(@NotNull @PathVariable String tempId) {
         try {
             boolean deleted = imageUploadService.deleteTempImage(tempId);
             if (deleted) {

@@ -17,12 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ShelterService {
-    final ShelterRepository shelterRepository;
+    private final ShelterRepository shelterRepository;
 
+    private final ShelterMapper shelterMapper;
     @Autowired
     private JWTService jwtService;
 
@@ -34,21 +36,21 @@ public class ShelterService {
         return shelterRepository.findAll();
     }
 
-    public Shelter findShelter(long id) {
+    public Optional<Shelter> findShelter(long id) {
         return shelterRepository.findShelterById(id);
     }
 
-    public Shelter register(Shelter shelter) {
-        if (shelterRepository.findByShelterLogin(shelter.getShelterLogin()) != null) {
+    public ShelterResponse register(Shelter shelter) {
+        if (shelterRepository.existsByShelterLogin(shelter.getShelterLogin())) {
             throw new RuntimeException("Приют с таким логином уже существует");
         }
+
         shelter.setShelterPassword(encoder.encode(shelter.getShelterPassword()));
-        return shelterRepository.save(shelter);
+        shelterRepository.save(shelter);
+        return shelterMapper.toEntity(shelter);
     }
 
-
     public LoginResponseDTO verify(ShelterLoginDTO shelter) {
-        System.out.println(shelter);
         try {
             Authentication auth = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -59,7 +61,7 @@ public class ShelterService {
 
             ShelterDetails shelterDetails = (ShelterDetails) auth.getPrincipal();
 
-            String token = jwtService.generateToken(shelter.getLogin());
+            final String token = jwtService.generateToken(shelter.getLogin());
 
             return new LoginResponseDTO(token, shelterDetails.getShelterId());
 

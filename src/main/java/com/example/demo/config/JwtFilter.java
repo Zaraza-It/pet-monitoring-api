@@ -29,30 +29,38 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("1");
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String username = null;
+        String token = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            System.out.println("2");
-            token = authHeader.substring(7);
-            username = jwtService.extractUserName(token);
-        }
+         if (token == null || !token.startsWith("Bearer ")) {
+             filterChain.doFilter(request, response);
+             return;
+         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            System.out.println("3");
-           ShelterDetails userDetails = (ShelterDetails) context.getBean(ShelterDetailsService.class).loadUserByUsername(username);
-            if (jwtService.validateToken(token, userDetails)) {
-                System.out.println("4");
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource()
-                        .buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        if (isTokenValid(token)) {
+            String username = jwtService.extractUserName(token.substring(7));
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                authenticateUser (username, token, request);
             }
         }
-
         filterChain.doFilter(request, response);
+    }
+
+    private void authenticateUser (String username, String token, HttpServletRequest request) {
+        ShelterDetails userDetails = (ShelterDetails) context.getBean(ShelterDetailsService.class).loadUserByUsername(username);
+
+        if (jwtService.validateToken(token.substring(7), userDetails)) {
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            logger.info("User authenticated successfully " + username);
+        } else {
+            logger.warn("Invalid JWT token for user " + username);
+        }
+    }
+
+    private boolean isTokenValid(String token) {
+        return token != null && token.startsWith("Bearer ");
     }
 }
 

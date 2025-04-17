@@ -4,13 +4,16 @@ import com.example.demo.DTO.ActivityTimingDTO;
 import com.example.demo.service.VideoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Positive;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -19,14 +22,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@Slf4j
 @RequiredArgsConstructor
+@Validated
 public class VideoController {
     private final VideoService videoService;
 
     @GetMapping("/pets/{petId}/video")
     public ResponseEntity<?> getLatestVideoFile(@PathVariable Long petId) {
         try {
-            System.out.println("getting video file for " +  petId);
+            log.info("getting video file for {}", petId);
             Resource videoResource = videoService.getLatestVideo(petId);
 
             return ResponseEntity.ok()
@@ -48,7 +53,7 @@ public class VideoController {
 
     @GetMapping("/pets/{petId}/activities")
     public ResponseEntity<?> getActivities(
-            @PathVariable Long petId) {
+           @Positive @PathVariable Long petId) {
         try {
             List<ActivityTimingDTO> timings = videoService.getActivityTimings(petId);
             return ResponseEntity.ok(timings);

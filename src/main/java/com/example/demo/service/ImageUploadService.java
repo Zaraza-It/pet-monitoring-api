@@ -71,16 +71,15 @@ public class ImageUploadService {
 
     public boolean deleteTempImage(String tempId) throws IOException {
         Path path = Paths.get(tempDir);
-        boolean deleted = false;
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, tempId + ".*")) {
             for (Path tempFile : stream) {
                 Files.delete(tempFile);
-                deleted = true;
+                return true;
             }
         }
 
-        return deleted;
+        return false;
     }
 
 

@@ -2,11 +2,17 @@ package com.example.demo.entities;
 
 import com.example.demo.model.ActivityType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Data
 @Table(name = "BasicActivities")
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+
 public class BasicActivity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

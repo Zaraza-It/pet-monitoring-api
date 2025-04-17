@@ -11,20 +11,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    final ShelterService shelterService;
+    private final ShelterService shelterService;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Shelter shelter) {
         try {
-            Shelter registeredShelter = shelterService.register(shelter);
+            ShelterResponse response = shelterService.register(shelter);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(registeredShelter);
+                    .body(response);
         } catch (EntityExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("message", e.getMessage()));
@@ -35,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody ShelterLoginDTO shelter) {
+    public ResponseEntity<?> login(@Valid @RequestBody ShelterLoginDTO shelter) {
         try {
             LoginResponseDTO response = shelterService.verify(shelter);
             return ResponseEntity.ok(response);

@@ -6,18 +6,22 @@ import com.example.demo.service.PetService;
 import com.example.demo.service.VideoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.io.IOException;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
+@Slf4j
 public class AIController {
 
     private final VideoService videoService;
@@ -37,9 +41,9 @@ public class AIController {
     }
 
     @GetMapping("/pets-photos/{videoId}")
-    public ResponseEntity<?> getAnimalPhotos(@PathVariable Long videoId) {
+    public ResponseEntity<?> getAnimalPhotos(@NotNull @Positive @PathVariable Long videoId) {
         try {
-            System.out.println("Пытаемся вернуть zip, videoID:" + videoId);
+            log.info("Пытаемся вернуть zip, videoID:{}", videoId);
             Resource photosZip = petService.getPhotosAsZip(videoId);
             return ResponseEntity.ok(photosZip);
         } catch (Exception e) {

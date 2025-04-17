@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ShelterDetailsService implements UserDetailsService {
 
@@ -17,11 +19,11 @@ public class ShelterDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String shelterName) throws UsernameNotFoundException {
-        Shelter shelter = shelterRepository.findByShelterLogin(shelterName);
-        if (shelter == null) {
+        Optional<Shelter> shelter = shelterRepository.findByShelterLogin(shelterName);
+        if (shelter.isEmpty()) {
             System.out.println("shelter not found");
             throw new UsernameNotFoundException("shelter not found");
         }
-        return new ShelterDetails(shelter);
+        return new ShelterDetails(shelter.get());
     }
 }
