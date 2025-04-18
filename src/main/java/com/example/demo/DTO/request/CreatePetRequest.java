@@ -1,4 +1,4 @@
-package com.example.demo.DTO;
+package com.example.demo.DTO.request;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
-public class CreatePetDTO {
+public class CreatePetRequest {
     @NotBlank(message = "Name is required")
     private String name;
 

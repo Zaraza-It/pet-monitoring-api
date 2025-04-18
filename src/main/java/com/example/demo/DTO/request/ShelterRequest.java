@@ -1,9 +1,14 @@
-package com.example.demo.DTO;
+package com.example.demo.DTO.request;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
+@Getter
+@Setter
 public class ShelterRequest {
     @Min(4)
     @Max(30)

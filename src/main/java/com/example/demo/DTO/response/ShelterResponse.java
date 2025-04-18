@@ -1,7 +1,8 @@
-package com.example.demo.DTO;
+package com.example.demo.DTO.response;
 
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -13,9 +14,12 @@ public class ShelterResponse {
   @NotBlank
   private String name;
 
-  @Min(10)
-  @Max(254)
+  @Email
   @NotBlank
   private String email;
+
+  @Min(10)
+  @Max(254)
+  private String description;
 
 }

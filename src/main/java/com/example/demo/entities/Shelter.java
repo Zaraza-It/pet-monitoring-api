@@ -13,6 +13,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -27,7 +28,7 @@ public class Shelter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    long id;
+    Long id;
 
     @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL)
     List<Pet> pets;
@@ -58,5 +59,5 @@ public class Shelter {
     @NotBlank
     String description;
 
-    Date createDt;
+    LocalDateTime createDt;
 }

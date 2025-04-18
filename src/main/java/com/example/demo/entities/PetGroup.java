@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Date;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
 @Table(name = "PetGroups")
 public class PetGroup {
     @Id

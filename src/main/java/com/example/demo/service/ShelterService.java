@@ -2,8 +2,13 @@ package com.example.demo.service;
 
 import com.example.demo.DTO.LoginResponseDTO;
 import com.example.demo.DTO.ShelterLoginDTO;
+import com.example.demo.DTO.request.ShelterRequest;
+import com.example.demo.DTO.response.PetResponse;
+import com.example.demo.DTO.response.ShelterResponse;
 import com.example.demo.entities.Shelter;
+import com.example.demo.mapper.ShelterMapper;
 import com.example.demo.model.ShelterDetails;
+import com.example.demo.repository.PetRepository;
 import com.example.demo.repository.ShelterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,32 +28,37 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ShelterService {
     private final ShelterRepository shelterRepository;
-
     private final ShelterMapper shelterMapper;
-    @Autowired
-    private JWTService jwtService;
-
+    private final JWTService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
+    private final PetRepository petRepository;
+    private final
 
     final AuthenticationManager authManager;
 
-    public List<Shelter> getAllShelters() {
-        return shelterRepository.findAll();
+    public List<ShelterResponse> getAllShelters() {
+        return shelterRepository.findAll().stream()
+                .map(shelterMapper::toResponse)
+                .toList();
     }
 
-    public Optional<Shelter> findShelter(long id) {
-        return shelterRepository.findShelterById(id);
+    public Optional<ShelterResponse> findShelterById(long id) {
+        return shelterRepository.findShelterById(id).map(
+                shelterMapper::toResponse);
     }
 
-    public ShelterResponse register(Shelter shelter) {
-        if (shelterRepository.existsByShelterLogin(shelter.getShelterLogin())) {
+    public ShelterResponse register(ShelterRequest request) {
+
+        if (shelterRepository.existsByShelterLogin(request.getLogin())) {
             throw new RuntimeException("Приют с таким логином уже существует");
         }
 
+        Shelter shelter = shelterMapper.toEntity(request);
         shelter.setShelterPassword(encoder.encode(shelter.getShelterPassword()));
         shelterRepository.save(shelter);
-        return shelterMapper.toEntity(shelter);
+        return shelterMapper.toResponse(shelter);
     }
+
 
     public LoginResponseDTO verify(ShelterLoginDTO shelter) {
         try {
@@ -63,17 +73,9 @@ public class ShelterService {
 
             final String token = jwtService.generateToken(shelter.getLogin());
 
-            return new LoginResponseDTO(token, shelterDetails.getShelterId());
-
+            return new LoginResponseDTO(token, shelterDetails.getUsername());
         } catch (BadCredentialsException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Неверный логин или пароль"
-            );
-        } catch (Exception e) {
-            System.out.println("Аутентификация не удалась: " + e.getClass().getName() + " - " + e.getMessage());
-            throw e;
+            throw new BadCredentialsException("Логин или пароль введены не правильно!");
         }
-    }
 
-}
+    }

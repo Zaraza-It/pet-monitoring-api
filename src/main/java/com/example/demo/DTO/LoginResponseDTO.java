@@ -8,5 +8,5 @@ import lombok.Data;
 public class LoginResponseDTO {
     private String token;
 
-    private Long shelterId;
+    private String name;
 }

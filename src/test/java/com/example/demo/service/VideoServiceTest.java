@@ -1,15 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.DTO.ActivityTimingDTO;
-import com.example.demo.DTO.VideoDTO;
-import com.example.demo.entities.BasicActivity;
-import com.example.demo.entities.Video;
 import com.example.demo.model.ActivityType;
-import com.example.demo.repository.VideoRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-
-import com.example.demo.repository.BasicActivityRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.FileNotFoundException;

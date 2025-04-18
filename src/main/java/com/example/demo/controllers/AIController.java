@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTO.PetStatDTO;
-import com.example.demo.DTO.VideoDTO;
 import com.example.demo.service.PetService;
-import com.example.demo.service.VideoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
